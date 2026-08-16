@@ -1,6 +1,6 @@
 # paper-pdf
 
-Add, edit and delete text in PDFs, in the browser. No server, no upload, no subscription. Don't tell Adobe.
+Paper PDF is a tool for editing your PDFs entirely in the browser. No server, no upload, no subscription. Don't tell Adobe.
 
 ![The editor with a paragraph open for editing](docs/screenshot.png)
 
@@ -66,6 +66,14 @@ repeated editing never degrades the file. `window.Paper` exposes `blocks(0)`, `s
 
 Vendored libraries and how to upgrade them: `vendor/README.md`.
 
+## Contributions
+
+## Contributing
+
+This tool came out of frustration at the lack of PDF editors that don't require an account,
+a subscription or a non-trivial amount of setup. If you have ideas on how to make it better,
+feel free to open an issue or a pull request. Or fork it, I don't mind.
+
 ## Tests
 
 ```bash
@@ -79,4 +87,4 @@ keyboard input, and the app running from `file://`. Details in `tests/README.md`
 
 ## Licence
 
-WTFPL. Vendored libraries keep their own — see `vendor/README.md`.
+WTFPL. Vendored libraries keep their own; see `vendor/README.md`.
