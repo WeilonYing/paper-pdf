@@ -66,8 +66,6 @@ repeated editing never degrades the file. `window.Paper` exposes `blocks(0)`, `s
 
 Vendored libraries and how to upgrade them: `vendor/README.md`.
 
-## Contributions
-
 ## Contributing
 
 This tool came out of frustration at the lack of PDF editors that don't require an account,
