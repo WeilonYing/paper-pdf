@@ -8,7 +8,7 @@ Paper PDF is a tool for editing your PDFs entirely in the browser. No server, no
 
 **Use it:** https://weilonying.github.io/paper-pdf/
 
-**Or run it locally:** download the repo and double-click `index.html`. It's a static page running on pure JS. Your PDFs never leave your machine either way.
+**Or run it locally:** download the repo or [download the latest release](https://github.com/WeilonYing/paper-pdf/releases), then double-click `index.html`. It's a static page running on pure JS. Your PDFs never leave your machine either way.
 
 ```bash
 git clone https://github.com/WeilonYing/paper-pdf.git
