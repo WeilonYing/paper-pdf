@@ -1,0 +1,26 @@
+{
+  "name": "paper-pdf",
+  "version": "1.0.0",
+  "description": "A PDF editor that adds, edits and deletes text entirely in the browser",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "fixtures": "python3 tests/make_fixtures.py",
+    "test": "node tests/run.js && node tests/interact.js && node tests/offline.js",
+    "test:engine": "node tests/run.js",
+    "test:ui": "node tests/interact.js",
+    "test:perf": "node tests/perf.js",
+    "test:offline": "node tests/offline.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.1"
+  },
+  "keywords": [
+    "pdf",
+    "editor",
+    "pdf-lib",
+    "pdf.js",
+    "client-side"
+  ],
+  "license": "WTFPL"
+}

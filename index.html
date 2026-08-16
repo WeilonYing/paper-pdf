@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper — a PDF text editor that runs in your browser</title>
+<meta name="description" content="Add, edit and delete text in PDF files. Everything happens locally in your browser; no file is ever uploaded.">
+<link rel="stylesheet" href="css/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111827'/%3E%3Cpath d='M9 8h9l5 5v11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z' fill='%23fff'/%3E%3Cpath d='M11 17h10M11 21h7' stroke='%23111827' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true">
+      <rect width="32" height="32" rx="7" fill="currentColor"/>
+      <path d="M9 8h9l5 5v11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z" fill="#fff"/>
+      <path d="M11 17h10M11 21h7" stroke="#111827" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <span>Paper</span>
+  </div>
+
+  <div class="filebox">
+    <button id="btnOpen" class="btn btn-primary">Open PDF</button>
+    <input type="file" id="fileInput" accept="application/pdf,.pdf" hidden>
+    <span id="fileName" class="filename">no file open</span>
+  </div>
+
+  <div class="tools" id="tools" role="toolbar" aria-label="Tools">
+    <button class="tool is-active" data-tool="select" title="Select and edit text (V)"><span class="ico">▚</span>Edit</button>
+    <button class="tool" data-tool="text" title="Add a text box (T)"><span class="ico">T</span>Text</button>
+    <button class="tool" data-tool="rect" title="Rectangle (R)"><span class="ico">▭</span>Box</button>
+    <button class="tool" data-tool="ellipse" title="Ellipse (O)"><span class="ico">◯</span>Oval</button>
+    <button class="tool" data-tool="line" title="Line (L)"><span class="ico">╱</span>Line</button>
+    <button class="tool" data-tool="draw" title="Freehand / signature (D)"><span class="ico">✍</span>Draw</button>
+    <button class="tool" data-tool="image" title="Place an image (I)"><span class="ico">▨</span>Image</button>
+    <input type="file" id="imageInput" accept="image/png,image/jpeg" hidden>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="group">
+    <button id="btnUndo" class="btn btn-icon" title="Undo (Ctrl+Z)" disabled>↺</button>
+    <button id="btnRedo" class="btn btn-icon" title="Redo (Ctrl+Shift+Z)" disabled>↻</button>
+  </div>
+  <div class="group zoom">
+    <button id="zoomOut" class="btn btn-icon" title="Zoom out">−</button>
+    <span id="zoomLabel">100%</span>
+    <button id="zoomIn" class="btn btn-icon" title="Zoom in">+</button>
+  </div>
+  <button id="btnSave" class="btn btn-primary" disabled>Save PDF</button>
+</header>
+
+<main class="shell">
+  <aside class="pages" id="pageStrip" aria-label="Pages"></aside>
+
+  <section class="viewer" id="viewer">
+    <div class="dropzone" id="dropzone">
+      <div class="dz-inner">
+        <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>
+          <path d="M12 18v-6M9.5 14.5 12 12l2.5 2.5"/>
+        </svg>
+        <h1>Drop a PDF here</h1>
+        <p>Or <button class="linklike" id="dzOpen">choose a file</button>. Nothing leaves your computer —
+           the whole editor runs inside this browser tab.</p>
+      </div>
+    </div>
+    <div id="pagesHost" class="pages-host"></div>
+  </section>
+
+  <aside class="inspector" id="inspector">
+    <div class="insp-empty" id="inspEmpty">
+      <h2>Nothing selected</h2>
+      <p>Click any text on the page to edit it. Select a block and press <kbd>Delete</kbd> to remove it.</p>
+      <div class="hint">
+        <strong>How editing works</strong>
+        <p>Replacing text deletes the original drawing instructions from the file and repaints — so there's no
+           white patch over a background, and the old words can't be found with Ctrl+F afterwards.</p>
+      </div>
+    </div>
+
+    <div class="insp-body" id="inspBody" hidden>
+      <h2 id="inspTitle">Text</h2>
+
+      <div class="field">
+        <label id="inspFontLabel">Font in the file</label>
+        <div class="readout" id="inspFont">—</div>
+      </div>
+
+      <div class="field" id="fidelityField">
+        <label>On save</label>
+        <div class="readout" id="inspFidelity">—</div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="inspSize">Size</label>
+          <input type="number" id="inspSize" step="0.5" min="1" max="400">
+        </div>
+        <div class="field">
+          <label for="inspColor">Colour</label>
+          <input type="color" id="inspColor">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Alignment</label>
+        <div class="segmented" id="inspAlign">
+          <button data-align="left" title="Left">⯇</button>
+          <button data-align="center" title="Centre">≡</button>
+          <button data-align="right" title="Right">⯈</button>
+          <button data-align="justify" title="Justify">☰</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="inspLeading">Line spacing</label>
+        <input type="number" id="inspLeading" step="0.5" min="1">
+      </div>
+
+      <div class="field shape-only" hidden id="strokeField">
+        <label for="inspStroke">Stroke</label>
+        <div class="row tight">
+          <input type="color" id="inspStroke">
+          <input type="number" id="inspWidth" step="0.5" min="0" title="Line width">
+        </div>
+      </div>
+      <div class="field shape-only" hidden id="fillField">
+        <label for="inspFill">Fill</label>
+        <div class="row tight">
+          <input type="color" id="inspFill">
+          <label class="check"><input type="checkbox" id="inspNoFill"> none</label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-ghost" id="btnDeleteSel">Delete</button>
+        <button class="btn btn-ghost" id="btnResetSel">Revert</button>
+      </div>
+    </div>
+
+    <div class="insp-section">
+      <h3>Fallback font</h3>
+      <p class="muted small">Used when the file's own font doesn't contain a character you typed —
+         common with subset fonts.</p>
+      <button class="btn btn-ghost btn-block" id="btnFont">Load a .ttf / .otf…</button>
+      <input type="file" id="fontInput" accept=".ttf,.otf,.woff" hidden>
+      <div class="readout small" id="fontReadout">Standard fonts (Helvetica, Times, Courier)</div>
+    </div>
+
+    <div class="insp-section" id="formSection" hidden>
+      <h3>Form fields</h3>
+      <div id="formFields"></div>
+    </div>
+  </aside>
+</main>
+
+<div class="statusbar">
+  <span id="status">Ready.</span>
+  <span class="spacer"></span>
+  <span id="busy" class="busy" hidden><span class="dot"></span> updating preview…</span>
+  <span id="pageInfo"></span>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/pdf-lib.min.js"></script>
+<script src="vendor/fontkit.umd.min.js"></script>
+<script src="js/encodings.js"></script>
+<script src="js/lexer.js"></script>
+<script src="js/fonts.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/writer.js"></script>
+<script src="js/blocks.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
