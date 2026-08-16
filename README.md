@@ -1,6 +1,8 @@
 # paper-pdf
 
-Paper PDF is a tool for editing your PDFs entirely in the browser. No server, no upload, no subscription. Don't tell Adobe.
+Paper PDF is a tool for editing your PDFs entirely in the browser. The editor supports adding, removing and editing text, plus support for basic shapes.
+
+No backend server, payment or any login required. Don't tell Adobe.
 
 ![The editor with a paragraph open for editing](docs/screenshot.png)
 
